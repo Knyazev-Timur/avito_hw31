@@ -15,6 +15,10 @@ def converter(csv_file, model):
              elif "is_published" in item and item["is_published"] == "FALSE":
                  item["is_published"] = False
 
+             if "location_id" in item:
+                 item['location'] = [item['location_id']]
+                 del item['location_id']
+
              json_data.append({'model': model, 'fields': item})
         return json_data
 
@@ -22,8 +26,14 @@ def save_file(data, file_name):
     with open(file_name, "w", encoding="UTF-8") as file:
         file.write(json.dumps(data, ensure_ascii=False))
 
-data = converter("data/categories.csv", "ads.category")
-save_file(data, "data/categories.json")
+data = converter("datasets/category.csv", "ads.category")
+save_file(data, "datasets/category.json")
 
-data = converter("data/ads.csv", "ads.ad")
-save_file(data, "data/ads.json")
+data = converter("datasets/ad.csv", "ads.ad")
+save_file(data, "datasets/ad.json")
+
+data = converter("datasets/user.csv", "user.user")
+save_file(data, "datasets/user.json")
+
+data = converter("datasets/location.csv", "user.location")
+save_file(data, "datasets/location.json")

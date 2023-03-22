@@ -14,16 +14,25 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from ads.views import index, CatView, CatDetailView, AdView, AdDetailView
+from ads.views import index, CatView, CatDetailView, CatListView, CatCreateView, CatUpdateView, CatDelView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', index),
-    path('cat/', CatView.as_view()),
+    path('user/', include("user.urls")),
+    path('ads/', include("ads.urls")),
+
     path('cat/<int:pk>', CatDetailView.as_view()),
-    path('ads/', AdView.as_view()),
-    path('ads/<int:pk>', AdDetailView.as_view()),
+    path('cat/', CatListView.as_view(), name="all_category"),
+    path('cat/create/', CatCreateView.as_view(), name="category_create"),
+    path('cat/<int:pk>/update/', CatUpdateView.as_view()),
+    path('cat/<int:pk>/delete/', CatDelView.as_view()),
 ]
 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
