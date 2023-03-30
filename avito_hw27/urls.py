@@ -18,7 +18,15 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, include
-from ads.views import index, CatView, CatDetailView, CatListView, CatCreateView, CatUpdateView, CatDelView
+from rest_framework import routers
+
+import ads
+from ads.views import index, CatView, CatDetailView, CatListView, CatCreateView, CatUpdateView, CatDelView, AdViewSet
+from user.views import LocationViewSet
+
+
+router = routers.SimpleRouter()
+router.register('location', LocationViewSet)
 
 
 urlpatterns = [
@@ -33,6 +41,9 @@ urlpatterns = [
     path('cat/<int:pk>/update/', CatUpdateView.as_view()),
     path('cat/<int:pk>/delete/', CatDelView.as_view()),
 ]
+
+urlpatterns += router.urls
+
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
