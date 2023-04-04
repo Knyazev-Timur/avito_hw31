@@ -5,10 +5,13 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import DetailView, ListView, CreateView, UpdateView, DeleteView
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.viewsets import ModelViewSet
 
-from ads.models import Category, Ad
-from ads.serializers import AdSerializer, AdListSerializer, AdDetailSerializer
+from ads.models import Category, Ad, Selection
+from ads.permissions import IsOwner, IsStaff
+from ads.serializers import AdSerializer, AdListSerializer, AdDetailSerializer, SelectionSerializer, \
+    SelectionListSerializer, SelectionCreateSerializer, SelectionDetailSerializer
 
 
 def index(request):
@@ -79,11 +82,26 @@ class CatDetailView(DetailView):
 class AdViewSet(ModelViewSet):
     queryset = Ad.objects.order_by("-price")
     default_serializer_class = AdSerializer
-    serializers = {"list": AdListSerializer,
-                   "retrieve": AdDetailSerializer}
+    default_permission = [AllowAny]
+
+
+    permission = {
+        "retrieve": [IsAuthenticated],
+        "update": [IsAuthenticated, IsOwner | IsStaff],
+        "partial_update": [IsAuthenticated, IsOwner | IsStaff],
+        "destroy": [IsAuthenticated, IsOwner | IsStaff],
+    }
+
+    serializers = {
+        "list": AdListSerializer,
+        "retrieve": AdDetailSerializer,
+        "create": AdListSerializer
+    }
     def get_serializer_class(self):
         return self.serializers.get(self.action, self.default_serializer_class)
 
+    def get_permissions(self):
+        return [permission() for permission in self.permission.get(self.action, self.default_permission)]
 
     def list(self, request, *args, **kwargs):
         cat = request.GET.getlist("cat", [])
@@ -107,3 +125,25 @@ class AdViewSet(ModelViewSet):
             self.queryset = self.queryset.filter(price__lte=price_to)
 
         return super().list(request, *args, **kwargs)
+
+
+class SelectionViewSet(ModelViewSet):
+    queryset = Selection.objects.order_by("name")
+    default_serializer_class = SelectionSerializer
+    default_permission = [AllowAny]
+    permission = {
+        "create": [IsAuthenticated],
+        "update": [IsAuthenticated, IsOwner],
+        "partial_update": [IsAuthenticated, IsOwner],
+        "destroy": [IsAuthenticated, IsOwner],
+    }
+    serializers = {
+        "list": SelectionListSerializer,
+        "create": SelectionCreateSerializer,
+        "retrieve": SelectionDetailSerializer
+    }
+    def get_serializer_class(self):
+        return self.serializers.get(self.action, self.default_serializer_class)
+
+    def get_permissions(self):
+        return [permission() for permission in self.permission.get(self.action, self.default_permission)]
