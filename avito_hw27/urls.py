@@ -4,7 +4,7 @@ from django.contrib import admin
 from django.urls import path, include
 from rest_framework import routers
 
-from ads.views import index, CatDetailView, CatListView, CatCreateView, CatUpdateView, CatDelView
+from ads.views import index
 from user.views import LocationViewSet
 
 router = routers.SimpleRouter()
@@ -15,13 +15,8 @@ urlpatterns = [
     path('', index),
     path('user/', include("user.urls")),
     path('ads/', include("ads.urls")),
+    path('cat/', include("cat.urls")),
     path('selection/', include("ads.selection_urls")),
-
-    path('cat/<int:pk>', CatDetailView.as_view()),
-    path('cat/', CatListView.as_view(), name="all_category"),
-    path('cat/create/', CatCreateView.as_view(), name="category_create"),
-    path('cat/<int:pk>/update/', CatUpdateView.as_view()),
-    path('cat/<int:pk>/delete/', CatDelView.as_view()),
 ]
 
 urlpatterns += router.urls

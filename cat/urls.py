@@ -1,6 +1,6 @@
 from rest_framework import routers
-from ads.views import SelectionViewSet
+from cat.views import CategoryViewSet
 
 router = routers.SimpleRouter()
-router.register('', SelectionViewSet)
+router.register('', CategoryViewSet)
 urlpatterns = router.urls
